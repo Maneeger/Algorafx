@@ -30,6 +30,14 @@ const FullWidthGrid =() => {
         variant="h2" 
         sx={{ 
           textAlign: 'center', 
+          fontSize: {
+      xs: '2rem', 
+      
+      // 2. Tablet/Desktop (sm and up): Use the larger standard size (e.g., 3rem)
+      sm: '3rem', 
+      
+      // md and up will also use 3rem since it inherits from sm
+    },
           marginTop: 2,
           marginBottom: 2, 
           fontWeight: 'bold', // Ensures it's bold (though h1 is already bold by default)

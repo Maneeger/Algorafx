@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import myLogo from '../assets/algoraLogo-Photoroom.png';
+import myLogo from '../assets/algoraLogo (2).jpg';
 import { Menu, X } from 'lucide-react';
+
+
 
 
 const Navbar = () => {
@@ -35,12 +37,12 @@ const Navbar = () => {
 
 
   return (
-    <header className="fixed top-0 z-50 flex flex-wrap sm:justify-start sm:flex-nowrap w-full bg-white text-sm py-3 dark:bg-darkmode">
+    <header className="fixed top-0 z-50 flex flex-wrap sm:justify-start sm:flex-nowrap w-full text-sm py-3 bg-darkmode">
       <nav className=" w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between sm:gap-20">
         <div className="flex items-center justify-between ">
          
-            <div className="flex w-22">
-              <img src= {myLogo} alt="company logo" className='w-full h-full' />
+            <div className="flex w-45">
+             <h1 className=''>Algora</h1>
             </div>
           
           <div className="sm:hidden">
