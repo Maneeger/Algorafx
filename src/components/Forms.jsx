@@ -1,6 +1,8 @@
-import React, { useState , useEffect} from 'react'
+import React, { useState , useEffect, useCallback} from 'react'
 import { SignInWithEmailAndPassword, SignInWithGoogle } from './Auth'
 import { useAuth } from './useAuth';
+import { auth , FIREBASE_APP_ID} from './firebase';
+import { toast } from 'react-toastify';
 import { Mail, CheckCircle, XCircle, Loader } from 'lucide-react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 // Material-UI Imports
@@ -16,13 +18,15 @@ import {
 } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import EmailIcon from '@mui/icons-material/Email';
-export const Login = () => {
+
+
+export const Login = ( {onToggleToSignup}) => {
     const { UserLoggedIn } = useAuth()
 
     const [email,setEmail] = useState('')
     const [password,setPassword] = useState('')
     const [isSigningIn,setIsSigningIn] = useState(false)
-      const [errorMessage,setErrorMesssage] = useState('')
+      const [errorMessage,setErrorMessage] = useState('')
  
       useEffect(() => {
         if (UserLoggedIn) {
@@ -31,41 +35,74 @@ export const Login = () => {
         }
     }, [UserLoggedIn]); 
 
+
       const onSubmit = async(e) =>{
         e.preventDefault()
-        if(!isSigningIn){
-            setIsSigningIn(true)
-            await SignInWithEmailAndPassword(email,password)
-        }
+        
+        if (isSigningIn) return;
+         setIsSigningIn(true);
+  setErrorMessage(''); // clear old errors
         try {
                 await SignInWithEmailAndPassword(email, password);
+                 // ✅ stop loading and maybe navigate here
+    setIsSigningIn(false);
+     toast.success('🎉 Signed in successfully!', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    // navigateTo('dashboard') or wherever
                 // The Navigate component above handles successful login
             }
         catch (error) {
                 console.error('Login Error:', error);
-                setErrorMessage(error.message || 'Failed to sign in. Please check your credentials.');
-                setIsSigningIn(false); // Stop loading animation
+              toast.error(error.message || '❌ Failed to sign in. Please check your credentials.', {
+        position: 'top-right',
+        autoClose: 4000,
+      });
+              
             }
+            finally {
+      setIsSigningIn(false);
+    }
 
       }
-      const onGoogleSignIn = (e) =>{
+      const onGoogleSignIn = async(e) =>{
         e.preventDefault()
-        if(!isSigningIn){
-              setIsSigningIn(true)
-              SignInWithGoogle().catch(err =>{
-                console.error('google sign-in error', err)
-            setErrorMessage(err.message || 'Failed to sign in with Google.');
+      
+              if (isSigningIn) return;
 
-                setIsSigningIn(false)
-              })
+              setIsSigningIn(true);
+  
+
+  try {
+    await SignInWithGoogle();
+    
+      toast.success('🚀 Signed in with Google!', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    setIsSigningIn(false);
+    console.log('Google sign-in successful');
+  } catch (err) {
+    console.error('Google sign-in error', err);
+     toast.error(err.message || '⚠️ Failed to sign in with Google.', {
+        position: 'top-right',
+        autoClose: 4000,
+      });
+    
+  }
+  finally {
+      setIsSigningIn(false);
+    }
         }
-      }
 
-return (
-        <Container component="main" maxWidth="xs">
+        return (
+        
             <Box
+          
+            maxWidth="xs"
                 sx={{
-                    marginTop: 8,
+                   
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -73,6 +110,7 @@ return (
                     boxShadow: 3,
                     borderRadius: 2,
                     backgroundColor: 'white',
+                      minWidth: { xs: '300px', sm: '350px' }
                 }}
             >
                 <EmailIcon color="primary" sx={{ fontSize: 40, mb: 1 }} />
@@ -80,13 +118,7 @@ return (
                     Sign In
                 </Typography>
                 
-                {/* Display error message if present */}
-                {errorMessage && (
-                    <Alert severity="error" sx={{ width: '100%', mt: 2, mb: 1 }}>
-                        {errorMessage}
-                    </Alert>
-                )}
-
+         
                 <Box component="form" onSubmit={onSubmit} noValidate sx={{ mt: 1 }}>
                     {/* Email Input Field */}
                     <TextField
@@ -155,44 +187,39 @@ return (
                 </Button>
 
                 {/* Link to Registration */}
-                <Typography variant="body2" sx={{ mt: 2 }}>
-            Don't have an account? 
-            
-            {/* ✅ The MUI Link component is used here */}
-            <Link 
-                // 🛑 Use component="span" for semantic correctness within Typography
-                component="span" 
                 
-                // Use onClick to trigger the state change instead of the 'to' prop
-                onClick={() => navigateTo('register')} 
-                
-                // Add styling to make it clear it's clickable
-                sx={{ 
-                    cursor: 'pointer', 
-                    ml: 0.5, // Small left margin for spacing
-                    fontWeight: 'bold' // Optional: make it stand out more
-                }}
-            >
-                Sign Up
-            </Link>
-        </Typography>
+            {/* The Toggle Link to Signup */}
+            <Typography variant="body2" sx={{ mt: 2 }}>
+                Don't have an account? 
+                <Link 
+                    component="span" 
+                    onClick={onToggleToSignup} // 🔑 Call the parent's function here
+                    sx={{ cursor: 'pointer', ml: 0.5, fontWeight: 'bold' }}
+                >
+                    Sign Up
+                </Link>
+            </Typography>
             </Box>
-        </Container>
+      
     );
-};
+      }
+
+
+
 // 
- export function SignUpSubscribeForm({ auth, userId, appId }) {
+ export function SignUpSubscribeForm({ auth, userId, appId , onToggleToLogin, onSignupSuccess}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [subscribe, setSubscribe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
+console.log("Auth Prop Received:", auth)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!auth) {
-      setError("Authentication service is not ready. Please try again.");
+      toast.error("Authentication service is not ready. Please try again.");
       return;
     }
 
@@ -208,12 +235,20 @@ return (
         password
       );
 
+      let finalMessage = 'Success! Your account has been created.';
       // 2. SUBSCRIPTION (Secondary Action)
       if (subscribe) {
-        await subscribeToNewsletter(email);
+        try {
+            await subscribeToNewsletter(email);
+            finalMessage += ' You are now subscribed to our newsletter.';
+        } catch (subscriptionError) {
+            // Log the subscription error but let the sign-up success pass
+            console.error("Newsletter subscription failed:", subscriptionError);
+            finalMessage += ' We created your account, but there was an error subscribing you to the newsletter. Please try again later.';
+        }
       }
-
-      setMessage('Success! Account created and subscription complete. Welcome!');
+toast.success(finalMessage)
+      setMessage('finalMessage');
       setEmail('');
       setPassword('');
 
@@ -228,7 +263,7 @@ return (
         errorMessage = 'Configuration Error: Invalid API Key detected during sign up.';
       }
       
-      setError(`Sign Up Failed: ${errorMessage}`);
+     toast.error(`Sign Up Failed: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -257,18 +292,7 @@ return (
       <form onSubmit={handleSubmit} className="space-y-4">
         
         {/* Messages */}
-        {message && (
-          <div className="bg-green-100 p-3 rounded-xl border border-green-300 flex items-start space-x-2 text-green-800">
-            <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-            <p className="text-sm font-medium">{message}</p>
-          </div>
-        )}
-        {error && (
-          <div className="bg-red-100 p-3 rounded-xl border border-red-300 flex items-start space-x-2 text-red-800">
-            <XCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-            <p className="text-sm font-medium">{error}</p>
-          </div>
-        )}
+      
 
         {/* Email Input */}
         <div>
@@ -331,11 +355,33 @@ return (
             'Sign Up & Get Access'
           )}
         </button>
-      </form>
+
+      </form>  {/* The Toggle Link to Login */}
+            <Typography variant="body2" sx={{ mt: 2 }} component="div">
+                Already have an account? 
+                <Link 
+                    component="span" 
+                    onClick={onToggleToLogin} // 🔑 Call the parent's function here
+                    sx={{ cursor: 'pointer', ml: 0.5, fontWeight: 'bold' }}
+                >
+                    Sign In instead
+                </Link>
+            </Typography>
     </div>
   );
 }
 const Forms =() => {
+   const [isLoginFormVisible, setIsLoginFormVisible] = useState(false);
+     // Function to toggle the view via button/link click
+    const toggleFormView = useCallback(() => {
+        setIsLoginFormVisible(prevState => !prevState);
+    }, []);
+
+    const handleSignupSuccess = useCallback(() => {
+        // Automatically switch to the Login form
+        setIsLoginFormVisible(true);
+        // Optional: clear any form data or show a success message
+    }, []);
     return(
         <Box
             sx={{
@@ -347,6 +393,8 @@ const Forms =() => {
                 // At the 'sm' breakpoint (600px by default in MUI), switch to horizontal (row)
                 '@media (min-width: 600px)': {
                     flexDirection: 'row',
+                    justifyContent:'center',
+                    gap:'0'
                 },
                 // Alternatively, use the shorthand array syntax:
                 // flexDirection: { xs: 'column', sm: 'row' },
@@ -358,8 +406,35 @@ const Forms =() => {
                 alignItems: { xs: 'center', sm: 'stretch' }
             }}
         >
-            <Login />
-            <SignUpSubscribeForm />
+        <Box
+                sx={{
+                    // Centered box to hold the current form
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 2,
+                    // Apply a transition for a smoother visual switch
+                    transition: 'opacity 0.3s ease-in-out', 
+                    // Use a key to force re-render on switch, which can help with animations/focus
+                }}
+            >
+                {/* 2. CONDITIONAL RENDERING */}
+                {isLoginFormVisible ? (
+                    // Show Login
+                    <Login 
+                        onToggleToSignup={toggleFormView} 
+                    />
+                ) : (
+                    // Show Signup (Default)
+                    <SignUpSubscribeForm 
+                        auth={auth} 
+                        userId={'mock-user'} 
+                        appId={FIREBASE_APP_ID} 
+                        onToggleToLogin={toggleFormView} // For the "Already have an account? Sign In instead" link
+                        onSignupSuccess={handleSignupSuccess} // For successful form submission
+                    />
+                )}
+            </Box>
         </Box>
     )
 }

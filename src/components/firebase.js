@@ -22,4 +22,7 @@ const auth = getAuth(app)
 // export const db = getFirestore(app);
 const db = getFirestore(app);
 // Optional: export the app itself if needed elsewhere
-export { app, auth };  
+// We pull the value directly from the environment variable or the config object.
+export const FIREBASE_APP_ID = import.meta.env.VITE_FIREBASE_APP_ID;
+export { app, auth }; 
+ 

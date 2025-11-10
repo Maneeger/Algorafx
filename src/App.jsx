@@ -6,10 +6,12 @@ import { AuthProvider } from './components/Authcontext.jsx';
 import Navbar from './components/Navbar.jsx';
 import './App.css'
 import Hero from './components/Hero.jsx';
+import { ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import  FullWidthGrid  from './components/Sectionone.jsx';
+import  ResponsiveImageAndListContainer  from './components/SectionTwo.jsx';
 import  Forms  from './components/Forms.jsx';
-import SignUpSubscribeForm from './components/SignUpSubscribeForm';
-import Login from './components/Login';
+
 
 
 
@@ -22,7 +24,8 @@ const renderContent = () => {
                     <> <Navbar />
                         <Hero  id="home-section"/>
                         <FullWidthGrid  id="features-section"/>
-                        <Forms/>
+                        <ResponsiveImageAndListContainer/>
+                        <Forms />
                         {/* <SignUpSubscribeForm id="register-section" />
                          <Login id="login-section" /> */}
                     </>
@@ -32,6 +35,7 @@ const renderContent = () => {
  
 return (
         <AuthProvider>
+            <ToastContainer />
           <Box sx={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
