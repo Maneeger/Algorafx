@@ -83,19 +83,19 @@ const Navbar = () => {
                <span className="relative z-20 hover:text-button">Home</span>
             </a>
             <a
-             className={getLinkClasses('Account')}
+             className={getLinkClasses('Testimonial')}
               href="#login-section"
-               onClick={(e) => handleLinkClick('Account', e)}
+               onClick={(e) => handleLinkClick('Testimonial', e)}
             >
-                 <span className="relative z-20 hover:text-button">Account</span>
+                 <span className="relative z-20 hover:text-button">Testimonials</span>
               
             </a>
             <a
-             className={getLinkClasses('subscribe')}
+             className={getLinkClasses('Courses')}
               href="#register-section"
-               onClick={(e) => handleLinkClick('subscribe', e)}
+               onClick={(e) => handleLinkClick('Courses', e)}
             >
-                 <span className="relative z-20 hover:text-button">subscribe</span>
+                 <span className="relative z-20 hover:text-button">Courses</span>
               
             </a>
             <a

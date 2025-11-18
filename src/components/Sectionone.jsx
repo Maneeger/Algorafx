@@ -11,6 +11,7 @@ import LiveTvIcon from '@mui/icons-material/LiveTv';
 import DevicesIcon from '@mui/icons-material/Devices';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { Stack } from '@mui/material';
+import { customTheme} from '../theme/muiTheme';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: '#fff',
@@ -38,12 +39,14 @@ const FullWidthGrid =() => {
       
       // md and up will also use 3rem since it inherits from sm
     },
+         fontFamily: (theme) => customTheme.typography.fontFamily,
           marginTop: 2,
           marginBottom: 2, 
           fontWeight: 'bold', // Ensures it's bold (though h1 is already bold by default)
           color: '#02231a', // Bright luminous green color
           // textShadow: '0 0 10px #0000, 0 0 20px #0000, 0 0 30px #018619',
         }}
+        
       >
         What We Teach
       </Typography>
